@@ -13,13 +13,11 @@ export default async (req: Request) => {
   const nonce = crypto.randomUUID();
 
   let csp = r.headers.get('content-security-policy-report-only') || '';
-  csp = csp.replace(/script-src /, "script-src 'strict-dynamic' 'nonce-MAGICNONCE' ");
-  csp = csp.replace(/MAGICNONCE/g, nonce);
+  csp = csp.replace(/script-src /, `script-src 'strict-dynamic' 'nonce-${nonce}' `);
   csp = csp.replace(/'unsafe-inline' 'unsafe-eval'/g, "'unsafe-eval'");
 
   let body = await r.text();
-  body = body.replace(/<script/g, "<script nonce=\"MAGICNONCE\"");
-  body = body.replace(/MAGICNONCE/g, nonce);
+  body = body.replace(/<script/g, `<script nonce="${nonce}"`);
 
   return new Response(body, {
     status: r.status,
